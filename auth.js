@@ -1,10 +1,16 @@
 const { TelegramClient } = require('telegram')
 const input = require('input')
-const { session, apiId, apiHash } = require('./config')
+const { StringSession } = require('telegram/sessions');
+const config = require('config');
 
-;(async () => {
+const tgSession = config.get('TG_SESSION');
+const tgApiId = config.get('TG_API_ID');
+const tgApiHash = config.get('TG_API_HASH');
+const session = new StringSession(tgSession);
+
+(async () => {
   console.log('Loading interactive example...')
-  const client = new TelegramClient(session, apiId, apiHash, {
+  const client = new TelegramClient(session, tgApiId, tgApiHash, {
     connectionRetries: 5,
   })
   await client.start({
