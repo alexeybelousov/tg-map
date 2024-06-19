@@ -4,6 +4,8 @@ const path = require("path");
 
 const app = express();
 
+app.use(express.json())
+
 process.on('uncaughtException', (err) => {
   console.log(err);
 });

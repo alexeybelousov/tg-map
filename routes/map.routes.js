@@ -5,6 +5,8 @@ const router = Router();
 
 router.get('/data', async (req, res) => {
     try {
+        console.log('начинаем читать сообщения');
+
         const messages = await readChannelMessage();
 
         res.status(200).json({ points: messages, filters: [] });

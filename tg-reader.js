@@ -32,27 +32,22 @@ const getImage = async (m) => {
 }
 
 async function getUnreadMessages(channelId, limit = 10) {
-  const dialogs = await client.getDialogs({})
+  try {
+    console.log('начинаем получать диалоги');
+
+  const dialogs = await client.getDialogs({});
   const channel = dialogs.find((d) => d.entity.username === channelId);
   
+  console.log('канал', channel.title);
+
   if (channel) {
+    console.log('начинаем получать сообщения из канала');
+
     const messages = await client.getMessages(channel.entity, {
       limit, // limit: channel.unreadCount,
     });
 
-    // console.log(messages);
-    messages.map(async (mes) => {
-      // console.log(mes.media);
-
-      // if (mes.media) {
-      //   const buffer = await client.downloadMedia(mes.media, {
-      //       workers: 1,
-      //   });
-      //   console.log("result is", buffer);
-      // }
-
-      // console.log(mes.entities);
-    });
+    console.log('начинаем формировать ответ для карты');
 
     return await Promise.all(
       messages.filter((m) => m.message).map(async (m) => {
@@ -72,6 +67,8 @@ async function getUnreadMessages(channelId, limit = 10) {
         // const buff = Buffer.from(m.photo.fileReference);
         // const blob = new Blob([buff]);
   
+        console.log('начинаем запрашивать буффер изображения');
+
         const buff = await getImage(m);
   
         // console.log(buff.toString('base64'));
@@ -79,6 +76,8 @@ async function getUnreadMessages(channelId, limit = 10) {
         // const image = new Blob([buff]);
         // console.log(image.toDataURI);
   
+        console.log('возвращаем point - ', m.id);
+
         return {
           id: m.id,
           title: data[1],
@@ -88,49 +87,28 @@ async function getUnreadMessages(channelId, limit = 10) {
         }
       })
     );
-  //   return messages.filter((m) => m.message).map(async (m) => {
-  //     const data = m.message.replace(/\n/g, '').split('>>');
-
-  //     // const buff = Buffer.from([m.photo.fileReference]);
-  //     // const blob = new Blob(m.photo.fileReference);
-  //     // let blob;
-
-  //     // if (m.media) {
-  //     //   const buffer = await client.downloadMedia(m.media, {
-  //     //       workers: 1,
-  //     //   });
-  //     //   blob = new Blob([buffer]);
-  //     //   // console.log("result is", buffer);
-  //     // }
-  //     // const buff = Buffer.from(m.photo.fileReference);
-  //     // const blob = new Blob([buff]);
-
-  //     const buff = await getImage(m);
-
-  //     console.log(buff.toString('base64'));
-
-  //     const image = new Blob([buff]);
-  //     console.log(image.toDataURI);
-
-  //     return {
-  //       id: m.id,
-  //       title: data[1],
-  //       coordinates: data[3],
-  //       categories: data[5],
-  //       image,
-  //     }
-  //   });
   } else {
     console.log('Channel has not been found')
+  }
+  } catch (err) {
+    console.log(err);
   }
 }
 
 async function readChannelMessage() {
-  await client.connect();
+  try {
+    console.log('начинаем подключаться к клиенту тг');
 
-  const channelId = 'geo_map_data';
+    await client.connect();
 
-  return await getUnreadMessages(channelId, 1000);
+    const channelId = 'geo_map_data';
+
+    console.log('начинаем получать сообщения');
+
+    return await getUnreadMessages(channelId, 100);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 module.exports = readChannelMessage;
